@@ -1,0 +1,2 @@
+###templates/mail/new_user.txt
+User {{ user.username }} has joined.
