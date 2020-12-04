@@ -11,7 +11,7 @@ migrate = Migrate(app, db) #初始化Migrate
 def make_shell_context():
     return dict(db=db, User=User, Role=Role)
 
-@app.cli.command()
+@app.cli.command() #單元測試啟動命令
 def test():
     """Run the unit test."""
     import unittest
