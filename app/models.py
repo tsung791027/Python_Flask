@@ -5,6 +5,13 @@ from . import login_manager
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
 
+class Permission:
+    FOLLOW = 1
+    COMMENT = 2
+    WRITE = 4
+    MODERATE = 8
+    ADMIN =16
+
 
 #定義db.model model
 class Role(db.Model):
@@ -17,24 +24,24 @@ class Role(db.Model):
     #model relationship
     users = db.relationship('User', backref='role', lazy= 'dynamic')
 
-def __init__(self, **kwargs):
-    super(Role, self).__init__(**kwargs)
-    if self.permissions is None:
+    def __init__(self, **kwargs):
+        super(Role, self).__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
+
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+
+    def remove_permission(self, perm):
+        if self.has_permission(perm):
+            self.permissions -= perm
+
+    def reset_permission(self):
         self.permissions = 0
 
-def add_permission(self, perm):
-    if not self.has_permission(perm):
-        self.permissions += perm
-
-def remove_permission(self, perm):
-    if self.has_permission(perm):
-        self.permissions -= perm
-
-def reset_permission(self):
-    self.permissions = 0
-
-def has_permission(self, perm):
-    return self.permissions & perm == perm
+    def has_permission(self, perm):
+        return self.permissions & perm == perm
 
 @staticmethod
 def insert_roles():
@@ -112,8 +119,8 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-def __repr__(self):
-    return '<User %r>' % self.username
+    def __repr__(self):
+        return '<User %r>' % self.username
 
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
@@ -129,9 +136,3 @@ login_manager.anonymous_user = AnonymousUser
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-class Permission:
-    FOLLOW = 1
-    COMMENT = 2
-    WRITE = 4
-    MODERATE = 8
-    ADMIN =16
