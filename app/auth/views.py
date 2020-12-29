@@ -18,6 +18,12 @@ def before_request():
             return redirect(url_for('auth.unconfirmed'))
 
 
+@auth.route('/unconfirmed')
+def unconfirmed():
+    if current_user.is_anonymous or current_user.confirmed:
+        return redirect(url_for('main.index'))
+    return render_template('auth/unconfirmed.html')
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -52,7 +58,7 @@ def register():
         send_email(user.email, 'Confirm Your Account',
                    'auth/email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you by email')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.login'))
     return render_template('auth/register.html', form=form)
 
 @auth.route('/confirm/<token>')
@@ -68,11 +74,7 @@ def confirm(token):
     return redirect(url_for('main.index'))
 
 
-@auth.route('/unconfirmed')
-def unconfirmed():
-    if current_user.is_anonymous or current_user.confirmed:
-        return redirect(url_for('main.index'))
-    return render_template('auth/unconfirmed.html')
+
 
 @auth.route('/confirm')
 @login_required
