@@ -4,9 +4,9 @@ from flask_login import UserMixin, AnonymousUserMixin
 from . import login_manager
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired, BadSignature
-from flask import current_app
+from flask import current_app, request
 from datetime import datetime
-
+import hashlib
 
 class Permission:
     FOLLOW = 1
@@ -89,6 +89,7 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+    
 
     def __init__(self, **kwargs): #定義使用者角色
         super(User, self).__init__(**kwargs)
@@ -110,7 +111,6 @@ class User(UserMixin, db.Model):
         self.last_seen = datetime.utcnow()
         db.session.add(self)
         db.session.commit()
-
 
     @property
     def password(self):
@@ -148,6 +148,13 @@ class User(UserMixin, db.Model):
         self.confirmed = True
         db.session.add(self)
         return True
+
+    def gravatar(self, size=100, default='identicon', rating='g'):
+        url = 'https://secure.gravatar.com/avatar'
+        hash = hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
+        return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
+            url=url, hash=hash, size=size, default=default, rating=rating
+        )
 
 
     def __repr__(self):
