@@ -13,6 +13,7 @@ class Config: #所有需要config彙整
     FLASKY_SENDER = 'jasperli0407@gmail.com'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    FLASKY_POSTS_PER_PAGE = 20
 
     @staticmethod
     def init_app(app):
